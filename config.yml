@@ -1,0 +1,37 @@
+--- # Main Config
+
+# Live Channel ID bisa didapat di halaman web Creator Center Bstation (https://studio.bilibili.tv/live/live-settings).
+# Isi dengan hanya angka Live Channel ID-nya saja, bukan URL livestream-nya.
+live_channel_id: 10401
+
+# Lihat file notify.mp3 di root folder aplikasi ini?
+# Itulah suara notifikasi jika ada gift masuk.
+# Kamu bisa ganti suaranya dengan cara ganti file notify.mp3 dengan file lain,
+# atau kalau ada file mp3 lain, kamu bisa ganti di sini.
+# Isi nama filenya diapit dengan tanda kutip dua (").
+gift_notify_sound: "notify.mp3"
+
+# Aplikasi ini membutuhkan 2 port.
+# Yaitu port WebSocket untuk bisa menerima livechat dari Bstation,
+# dan port WebServer untuk bisa menampilkan notify di browser OBS atau aplikasi livestream lainnya.
+# Port ini bagaikan lapak kalau orang jualan, di setiap PC ada port/lapak yang dipakai aplikasi lain.
+# Secara default, port untuk WebSocket adalah 3001 dan WebServer adalah 3000.
+# Jika salah satu atau kedua port itu sudah terpakai oleh aplikasi lain, aplikasi tidak bisa berjalan dan akan muncul error.
+# Kamu bisa ganti angkanya di bagian ini, tanpa tanda kutip
+websocket_port: 3001
+webserver_port: 3000
+
+title: "Reading and Writing YAML to a File in Node.js/JavaScript"
+url_path: "/reading-and-writing-yaml-to-a-file-in-node-js-javascript"
+domain: "stackabuse.com"
+port: 443
+is-https: true
+meta:
+    published-at: "Nov. 1st, 2019"
+    author:
+        name: "Scott Robinson"
+        contact: "scott@stackabuse.com"
+    tags:
+        - javascript
+        - node.js
+        - web development

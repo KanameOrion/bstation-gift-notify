@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "chalk": "^5.1.2",
+    "cheerio": "^1.0.0-rc.12",
+    "cli-color": "^2.0.3",
+    "express": "^4.18.2",
+    "js-yaml": "^4.1.0",
+    "node-notifier": "^10.0.1",
+    "puppeteer": "^19.2.2",
+    "ws": "^8.11.0"
+  }
+}
