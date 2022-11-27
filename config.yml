@@ -2,7 +2,7 @@
 
 # Live Channel ID bisa didapat di halaman web Creator Center Bstation (https://studio.bilibili.tv/live/live-settings).
 # Isi dengan hanya angka Live Channel ID-nya saja, bukan URL livestream-nya.
-live_channel_id: 10401
+live_channel_id: 10419
 
 # Lihat file notify.mp3 di root folder aplikasi ini?
 # Itulah suara notifikasi jika ada gift masuk.
@@ -21,17 +21,9 @@ gift_notify_sound: "notify.mp3"
 websocket_port: 3001
 webserver_port: 3000
 
-title: "Reading and Writing YAML to a File in Node.js/JavaScript"
-url_path: "/reading-and-writing-yaml-to-a-file-in-node-js-javascript"
-domain: "stackabuse.com"
-port: 443
-is-https: true
-meta:
-    published-at: "Nov. 1st, 2019"
-    author:
-        name: "Scott Robinson"
-        contact: "scott@stackabuse.com"
-    tags:
-        - javascript
-        - node.js
-        - web development
+# Jika tidak ada yang chat di livechat selama nilai yang ditentukan,
+# sistem observasi untuk memantau chat akan restart.
+# Hal ini dilakukan untuk jaga-jaga ketika kamu mempunyai koneksi yang kurang bagus.
+# Karena jika kamu terdisconnect, sistem observasi tidak akan kembali memantau livechat.
+# Isi konfigurasi ini dengan angka, angka yang dimaksud dalam satuan detik.
+observe_livechat_idle_refresh: 60

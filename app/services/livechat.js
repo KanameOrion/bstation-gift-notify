@@ -10,29 +10,39 @@ let appConfig = yaml.load(fileContents);
 class Livechat extends EventEmitter {
     browserDom = "test";
     sendDataSocket;
+    refreshTimeoutIntervalObj;
+    browser;
+    page;
 
     constructor() {
         super();
     }
 
     async Start() {
-        const browser = await puppeteer.launch({ headless: true });
-        const page = await browser.newPage();
-        await page.goto(`https://m.bilibili.tv/h5-single/chat.html?id=${appConfig.live_channel_id}&bgstyle=light`);
+        this.browser = await puppeteer.launch({ headless: false });
+        await this.LaunchPage();
+    }
 
-        await page.exposeFunction('puppeteerLogMutation', (mutation) => {
+    async LaunchPage()
+    {
+        this.page = await this.browser.newPage();
+        await this.page.goto(`https://m.bilibili.tv/h5-single/chat.html?id=${appConfig.live_channel_id}&bgstyle=light`);
+
+        await this.page.exposeFunction('puppeteerLogMutation', (mutation) => {
             const $ = cheerio.load(mutation);
             let authorDom = $(".type-name");
             let authorName = authorDom.text().split(":")[0].trim();
 
             let messageDom = $(".message-text-part");
             let message = messageDom.eq(1).text().trim();
-            console.log("["+authorName+"]: " + message);
+            console.log("[" + authorName + "]: " + message);
+
+            this.#IdleRefreshHandler();
 
             this.emit("incomingChat", JSON.stringify(this.#ParsingMessage(mutation)));
         });
 
-        await page.evaluate(() => {
+        await this.page.evaluate(() => {
             const target = document.querySelector('#items');
             const observer = new MutationObserver(mutations => {
                 for (const mutation of mutations) {
@@ -41,12 +51,21 @@ class Livechat extends EventEmitter {
                     }
                 }
             });
-            observer.observe(target, {attributes: false, childList: true, characterData: false, subtree:true});
+            observer.observe(target, { attributes: false, childList: true, characterData: false, subtree: true });
         });
     }
 
-    #ParsingMessage(htmlMessage)
-    {
+    #IdleRefreshHandler() {
+        if (this.refreshTimeoutIntervalObj != null)
+            clearInterval(this.refreshTimeoutIntervalObj);
+
+        this.refreshTimeoutIntervalObj = setInterval(() => {
+            this.page.close();
+            this.LaunchPage();
+        }, (appConfig.observe_livechat_idle_refresh * 1000));
+    }
+
+    #ParsingMessage(htmlMessage) {
         let messageReturn = {
             type: "",
             author: "",
@@ -57,27 +76,25 @@ class Livechat extends EventEmitter {
         };
         const $ = cheerio.load(htmlMessage);
         let systemMessageDOM = $(".type-system");
-        if (systemMessageDOM.length > 0)
-        {
+        if (systemMessageDOM.length > 0) {
             messageReturn.type = "SYSTEM";
             messageReturn.message = systemMessageDOM.find("span").remove().closest(".type-system").eq(0).text().trim();
-            return messageReturn;   
+            return messageReturn;
         }
 
         let giftMessageDOM = $(".type-gift");
-        if (giftMessageDOM.length > 0)
-        {
+        if (giftMessageDOM.length > 0) {
             let giftCount = 1;
             let giftCountText = $(".type-giftnum").eq(0).text().trim();
             if (giftCountText != "")
-                giftCount = giftCountText.replace(/\D/g,'');
-            
+                giftCount = giftCountText.replace(/\D/g, '');
+
             messageReturn.author = $(".type-name").eq(0).text().split(":")[0].trim();
             messageReturn.type = "GIFT";
             messageReturn.giftType = giftMessageDOM.eq(0).text().trim();
             messageReturn.images = $(".message-icon-part img").eq(0).attr("src");
             messageReturn.giftCount = giftCount;
-            return messageReturn;   
+            return messageReturn;
         }
 
         let commonMessageDOM = $(".message-item");
