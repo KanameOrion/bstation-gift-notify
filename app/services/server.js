@@ -14,6 +14,7 @@ let appConfig = yaml.load(fileContents);
 class Server extends EventEmitter {
     #wss;
     ws;
+    arrClients = {};
 
     #status = {
         webServer: false,
@@ -26,8 +27,16 @@ class Server extends EventEmitter {
     }
 
     Web() {
+        app.set('view engine', 'pug');
+        app.set('views','./app/static/views');
+
         app.get('/giftnotify', function (req, res) {
-            res.sendFile('app/static/giftNotify.html', { root: '.' });
+            // res.sendFile('app/static/giftNotify.html', { root: '.' });
+            res.render('giftNotify', { 
+                title: 'Hey', 
+                message: 'Hello there!',
+                configAudio: 'aaa.mp3',
+            })
         });
 
         app.use(Express.static(path.join(__dirname, '../static/assets')));
@@ -52,14 +61,28 @@ class Server extends EventEmitter {
         // Creating a new websocket server
         this.#wss = new WebSocketServer.Server({ port: appConfig.websocket_port });
         // Creating connection using websocket
-        this.#wss.on("connection", ws => {
+        this.#wss.on("connection", (ws, req) => {
             console.log(clc.bgYellow.black("Klien terhubung."));
 
             this.ws = ws;
+            let requestData = req;
+            this.arrClients[req.headers['sec-websocket-key']] = {
+                appIns: {},
+                ws: ws,
+            }
 
             // sending message
-            ws.on("message", data => {
-                console.log(clc.bgYellow.black(`Client has sent us: ${data}`))
+            ws.on("message", (data, req) => {
+
+                // //Check if data is JSON and request something
+                // try {
+                //     let arrData = JSON.parse(data);
+                //     this.RequestHandler(arrData);
+                // } catch (e) {
+                //     //Noting happened if data is other than JSON
+                // }
+
+                console.log(clc.bgYellow.black(`Client has sent us: ${data} ${requestData.headers['sec-websocket-key']}`))
             });
             // handling what to do when clients disconnects from server
             ws.on("close", () => {
@@ -85,6 +108,28 @@ class Server extends EventEmitter {
     SendMessage(message) {
         if (this.ws != null)
             this.ws.send(message);
+    }
+
+    // RequestHandler(data)
+    // {
+    //     if (this.arrClients.hasOwnProperty("key1"))
+    // }
+
+    WrapMessage(message, type) {
+        try {
+            message = JSON.parse(message);
+        } catch (e) {
+            if (typeof yourVariable !== 'object' && yourVariable === null)
+            {
+                console.log(clc.bgRed.white(`Message must be an object or a JSON.`));
+                return message;
+            }
+        }
+
+        return JSON.stringify({
+            type: type,
+            content: message,
+        });
     }
 }
 
