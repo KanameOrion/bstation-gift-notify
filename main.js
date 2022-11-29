@@ -23,7 +23,7 @@ const notifier = require('node-notifier');
         }
     });
     LivechatServer.on("incomingChat", (message) => {
-        AppServer.SendMessage(AppServer.WrapMessage(message, "GIFTNOTIFYCONTENT"));
+        AppServer.SendMessageByArrType(AppServer.WrapMessage(message, "GIFTNOTIFYCONTENT"), ['GIFTNOTIFYCLIENT']);
     });
 
 

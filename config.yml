@@ -2,7 +2,7 @@
 
 # Live Channel ID bisa didapat di halaman web Creator Center Bstation (https://studio.bilibili.tv/live/live-settings).
 # Isi dengan hanya angka Live Channel ID-nya saja, bukan URL livestream-nya.
-live_channel_id: 10419
+live_channel_id: 10757
 
 # Lihat file notify.mp3 di root folder aplikasi ini?
 # Itulah suara notifikasi jika ada gift masuk.

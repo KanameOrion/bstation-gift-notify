@@ -6,13 +6,14 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const WebSocketServer = require('ws');
 const clc = require('cli-color');
+const Crypto = require("../helper/Crypto");
+const StringHelper = require("../helper/String");
 let EventEmitter = require('events').EventEmitter;
 
 let fileContents = fs.readFileSync('./config.yml', 'utf8');
 let appConfig = yaml.load(fileContents);
 
 class Server extends EventEmitter {
-    #wss;
     ws;
     arrClients = {};
 
@@ -32,8 +33,14 @@ class Server extends EventEmitter {
 
         app.get('/giftnotify', function (req, res) {
             // res.sendFile('app/static/giftNotify.html', { root: '.' });
+            let pageId = StringHelper.GenerateRandomString(16);
             res.render('giftNotify', { 
                 title: 'Hey', 
+                key: Crypto.Encrypt(JSON.stringify({
+                    type: "GIFTNOTIFYCLIENT",
+                    id: pageId,
+                })),
+                id: pageId,
                 message: 'Hello there!',
                 configAudio: 'aaa.mp3',
             })
@@ -59,17 +66,30 @@ class Server extends EventEmitter {
 
     Socket() {
         // Creating a new websocket server
-        this.#wss = new WebSocketServer.Server({ port: appConfig.websocket_port });
+        let wss = new WebSocketServer.Server({ port: appConfig.websocket_port });
         // Creating connection using websocket
-        this.#wss.on("connection", (ws, req) => {
-            console.log(clc.bgYellow.black("Klien terhubung."));
+        wss.on("connection", (ws, req) => {
+            let arrConnectionKey = req.url.substring(1).split("_");
+            if (arrConnectionKey == null)
+                return;
 
-            this.ws = ws;
-            let requestData = req;
-            this.arrClients[req.headers['sec-websocket-key']] = {
-                appIns: {},
-                ws: ws,
+            let arrConnectionParamsDecrypt;
+            let arrConnectionParams;
+            
+            try {
+                arrConnectionParamsDecrypt = Crypto.Decrypt(arrConnectionKey[1], arrConnectionKey[0]);   
+                arrConnectionParams = JSON.parse(arrConnectionParamsDecrypt);
+            } catch (error) {
+                return;
             }
+
+            let connId = req.headers['sec-websocket-key'];
+
+            this.arrClients[connId] = {
+                ws: ws,
+                type: arrConnectionParams.type
+            };
+            console.log(clc.bgYellow.black(`Klien ${arrConnectionParams.type} dengan key ${connId} terhubung.`));
 
             // sending message
             ws.on("message", (data, req) => {
@@ -105,9 +125,15 @@ class Server extends EventEmitter {
         })
     }
 
-    SendMessage(message) {
-        if (this.ws != null)
-            this.ws.send(message);
+    SendMessageByArrType(message, arrType) {
+        let arrKeyFound = [];
+        Object.keys(this.arrClients).forEach((key) => {
+            if (arrType.includes(this.arrClients[key]['type']))
+                arrKeyFound.push(this.arrClients[key]);
+        });
+        arrKeyFound.forEach((items) => {
+            items.ws.send(message);
+        })  
     }
 
     // RequestHandler(data)
