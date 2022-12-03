@@ -1,31 +1,4 @@
-const puppeteer = require('puppeteer');
-const cheerio = require('cheerio');
+const Apps = require("./app/services/apps");
 
-const Server = require('./app/services/server');
-const Livechat = require('./app/services/livechat');
-
-const notifier = require('node-notifier');
-
-(async () => {
-    const AppServer = new Server;
-    const LivechatServer = new Livechat;
-
-    AppServer.Start();
-    LivechatServer.Start();
-
-    AppServer.on("serverStatus", (status) => {
-        if (status.webServer && status.webSocket) {
-            notifier.notify({
-                title: 'Bstation Live Chat Tools',
-                message: 'Semua server telah terhubung!',
-                
-            });
-        }
-    });
-    LivechatServer.on("incomingChat", (message) => {
-        AppServer.SendMessageByArrType(AppServer.WrapMessage(message, "GIFTNOTIFYCONTENT"), ['GIFTNOTIFYCLIENT']);
-    });
-
-
-
-})();
+const mainApps = new Apps;
+mainApps.Init();

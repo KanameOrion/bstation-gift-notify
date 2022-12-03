@@ -16,6 +16,7 @@ let appConfig = yaml.load(fileContents);
 class Server extends EventEmitter {
     ws;
     arrClients = {};
+    webProtectCode = "";
 
     #status = {
         webServer: false,
@@ -31,20 +32,7 @@ class Server extends EventEmitter {
         app.set('view engine', 'pug');
         app.set('views','./app/static/views');
 
-        app.get('/giftnotify', function (req, res) {
-            // res.sendFile('app/static/giftNotify.html', { root: '.' });
-            let pageId = StringHelper.GenerateRandomString(16);
-            res.render('giftNotify', { 
-                title: 'Hey', 
-                key: Crypto.Encrypt(JSON.stringify({
-                    type: "GIFTNOTIFYCLIENT",
-                    id: pageId,
-                })),
-                id: pageId,
-                message: 'Hello there!',
-                configAudio: 'aaa.mp3',
-            })
-        });
+        this.WebRoutes();
 
         app.use(Express.static(path.join(__dirname, '../static/assets')));
 
@@ -63,6 +51,30 @@ class Server extends EventEmitter {
             }
         });
     }
+
+    WebRoutes = () => {
+        app.get('/giftnotify', function (req, res) {
+            // res.sendFile('app/static/giftNotify.html', { root: '.' });
+            let pageId = StringHelper.GenerateRandomString(16);
+            res.render('servicesPage/giftNotify', { 
+                title: 'Hey', 
+                key: Crypto.Encrypt(JSON.stringify({
+                    type: "GIFTNOTIFYCLIENT",
+                    id: pageId,
+                })),
+                id: pageId,
+                message: 'Hello there!',
+                configAudio: 'aaa.mp3',
+            })
+        });
+
+        app.get('/welcome', function (req, res) {
+            let pageId = StringHelper.GenerateRandomString(16);
+            res.render('controlPage/pages/welcome', {
+                pageTitle: "Welcome to Bstation Streamer Tools", 
+            })
+        });
+    };
 
     Socket() {
         // Creating a new websocket server

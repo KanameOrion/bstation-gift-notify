@@ -4,11 +4,44 @@
     "cheerio": "^1.0.0-rc.12",
     "cli-color": "^2.0.3",
     "crypto": "^1.0.1",
+    "electron": "^22.0.0",
+    "electron-pug": "^2.0.0",
     "express": "^4.18.2",
     "js-yaml": "^4.1.0",
     "node-notifier": "^10.0.1",
     "pug": "^3.0.2",
     "puppeteer": "^19.2.2",
     "ws": "^8.11.0"
-  }
+  },
+  "name": "bstation-gift-notify",
+  "version": "1.0.0",
+  "description": "Simple tools to improve the livestream of Bstation Streamers",
+  "main": "main.js",
+  "build": {
+    "appId": "com.bstationstreamtools.id"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KanameOrion/bstation-gift-notify.git"
+  },
+  "keywords": [
+    "bstation",
+    "livechat",
+    "livestream",
+    "node",
+    "express",
+    "electron",
+    "bootstrap",
+    "websocket"
+  ],
+  "author": "Kaname Orion",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KanameOrion/bstation-gift-notify/issues"
+  },
+  "homepage": "https://github.com/KanameOrion/bstation-gift-notify#readme"
 }
